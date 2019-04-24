@@ -3,6 +3,17 @@ const nunjucks = require('nunjucks')
 
 const app = express()
 
+// Middlewares
+const verifyAge = (req, res, next) => {
+  console.log('data: ' + req.params.age)
+  if (!isNaN(req.params.age)) {
+    return next()
+  } else {
+    console.log('Params is not a number!')
+    return res.redirect('/')
+  }
+}
+
 nunjucks.configure('views', {
   autoescape: true,
   express: app,
@@ -29,13 +40,13 @@ app.post('/check', (req, res) => {
 })
 
 // Rota que renderiza uma página com o texto: Você é maior de idade e possui x anos , onde x deve ser o valor informado no input do formulário
-app.get('/major/:age', (req, res) => {
+app.get('/major/:age', verifyAge, (req, res) => {
   return res.render('major', { age: req.params.age })
 })
 
 // Rota que renderiza uma página com o texto: Você é menor de idade e possui x anos , onde x deve ser o valor informado no input do formulário
-app.get('/minor', (req, res) => {
-  return res.render('new')
+app.get('/minor/:age', verifyAge, (req, res) => {
+  return res.render('minor', { age: req.params.age })
 })
 
 app.post('/create', (req, res) => {
